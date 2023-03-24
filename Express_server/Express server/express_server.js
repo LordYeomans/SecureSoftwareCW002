@@ -15,6 +15,10 @@ app.get("/", function(req, res){
     res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// Imports the Style Sheet
+app.get('/stylesheet.css', (request, responseC) => {
+  responseC.sendFile(path.join(__dirname, "stylesheet.css"))
+});
 
 function sanatise(things){
   var charCount = 0;
