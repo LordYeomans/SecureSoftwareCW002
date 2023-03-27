@@ -14,11 +14,14 @@
 #welcomeUser {
   font-size: 20px;
   font-style: italic;
-  padding-left: 500px;
+  padding-left: 100px;
+  padding-top: 10px;
 }
 
 #signOut {
+  font-size: 20px;
   padding-left: 100px;
+  padding-top: 10px;
 }
 
 .main {
@@ -28,6 +31,7 @@
   padding-left: 500px;
   padding-right: 500px;
   padding-top: 80px;
-  padding-bottom: 1000px;
+  padding-bottom: 10000px;
   color: black;
+  
 }
