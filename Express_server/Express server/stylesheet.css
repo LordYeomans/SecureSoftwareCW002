@@ -1,41 +1,53 @@
 .navBar {
   overflow: hidden;
-  background-color: #EDF1D6;  
+  background-color: #bfb9ae;  
   padding-bottom: 12px;
   padding-top: 12px;
 }
 
-#title {
-  font-size: 35px;
-  font-weight: bold;
-  padding-left: 350px;
+#welcomeUser {
+  font-size: 15px;
+  font-style: italic;
+  padding-left: 150px;
+  padding-top: 10px;
 }
 
-#welcomeUser {
-  font-size: 20px;
-  font-style: italic;
-  padding-left: 100px;
+#signOut {
+  font-size: 15px;
+  padding-top: 10px;
+  padding-right: 150px;
+}
+
+#signOut:hover {
+  cursor: pointer;
+}
+
+#createPost {
+  font-size: 15px;
+  padding-top: 10px;
+}
+
+#createPost {
+  font-size: 15px;
   padding-top: 10px;
 }
 
 .searchPosts {
-  padding-left: 50px;
+  width: 300px;
 }
 
-#signOut {
-  font-size: 20px;
-  padding-left: 100px;
-  padding-top: 10px;
+.searchPosts::placeholder {
+  color: grey;
 }
 
 .main {
   text-align: center;
   overflow: hidden;
-  background-color: #9DC08B;
+  background-color: #bfb9ae;
   padding-left: 500px;
   padding-right: 500px;
   padding-top: 80px;
-  padding-bottom: 10000px;
+  padding-bottom: 1000px;
   color: black;
 }
 
