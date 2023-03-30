@@ -1,5 +1,5 @@
 .navBar {
-  background-color: white;  
+  background-color: rgb(199, 199, 199);  
   padding-bottom: 1%;
   padding-top: 1%;
 }
@@ -41,7 +41,7 @@
 .main {
   text-align: center;
   overflow: hidden;
-  background-color: #bfb9ae;
+  background-color: rgb(223, 223, 223);
   padding-top: 5%;
   padding-bottom: 1000px;
   color: black;
@@ -63,10 +63,10 @@
 .dropbtn {
   background-color: white;
   color: black;
-  padding: 16px;
   font-size: 16px;
   border: none;
   cursor: pointer;
+  padding: 10%;
 }
 
 .dropbtn:hover, .dropbtn:focus {
@@ -75,7 +75,6 @@
 
 #myInput {
   box-sizing: border-box;
-  background-image: url('searchicon.png');
   background-position: 14px 12px;
   background-repeat: no-repeat;
   font-size: 16px;
@@ -84,11 +83,20 @@
   border-bottom: 1px solid #ddd;
 }
 
-#myInput:focus {outline: 3px solid #ddd;}
+#myInput:focus {
+  outline: 3px solid #ddd;
+}
 
 .dropdown {
   position: relative;
   display: inline-block;
+  padding-left: 1%;
+  width: 100px;
+}
+
+.dropdown button {
+  width: 200%;
+  text-align: center;
 }
 
 .dropdown-content {
@@ -116,3 +124,11 @@
 }
 
 /* ---------------------------------------- x ---------------------------------------- */
+
+#filterText {
+  font-weight: bold;
+}
+
+#filterButtonText {
+  width: 10%;
+}

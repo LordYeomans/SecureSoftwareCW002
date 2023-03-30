@@ -26,12 +26,11 @@
     </div>
         
     <div class="main">
-
         <div class="container">
             <div class="row">
                 <div class="col-sm-12">
                     <form action="/action_page.php">
-                        <input class="searchPosts" type="text" placeholder="Search for posts" minlength="3" maxlength="60" required>
+                        <input class="searchPosts" type="text" placeholder="Search for posts" minlength="3" maxlength="60">
                         <button type="submit"><i class="fa fa-search"></i></button>
                         <a><button> Create Post </button></a>
                     </form>
@@ -42,33 +41,23 @@
             <br><br>
 
             <div class="row">
-                <div class="col=sm-3">
-                    <h5> Filter by Category: </h5>
-                </div>
-
-                <div class="col-sm-3">
+                <div class="col-sm-7">
+                    <a id=filterText> Filter by category: </a>
                     <div class="dropdown">
-                        <button onclick="showDropdown()" id="button" class="dropbtn">Dropdown</button>
+                        <button onclick="showDropdown()" id="button" class="dropbtn">Categories</button>
                         <div id="myDropdown" class="dropdown-content">
-                          <input type="text" placeholder="Search.." id="myInput" onkeyup="filterDropdown()">
-                          <a href="#1" onclick="filterSelection('Link 1')">Link 1</a>
-                          <a href="#2" onclick="filterSelection('Link 2')">Link 2</a>
-                          <a href="#3" onclick="filterSelection('Link 3')">Link 3</a>
-                          <a href="#4" onclick="filterSelection('Link 4')">Link 4</a>
-                          <a href="#5" onclick="filterSelection('Link 5')">Link 5</a>
-                          <a href="#6" onclick="filterSelection('Link 6')">Link 6</a>
-                          <a href="#7" onclick="filterSelection('Link 7')">Link 7</a>
+                          <input type="text" placeholder="Search for a category..." id="myInput" onkeyup="filterDropdown()">
+                          <a href="#1" onclick="filterSelection('Category 1')">Category 1</a>
+                          <a href="#2" onclick="filterSelection('Category 2')">Category 2</a>
+                          <a href="#3" onclick="filterSelection('Category 3')">Category 3</a>
+                          <a href="#4" onclick="filterSelection('Category 4')">Category 4</a>
+                          <a href="#5" onclick="filterSelection('Category 5')">Category 5</a>
+                          <a href="#6" onclick="filterSelection('Category 6')">Category 6</a>
+                          <a href="#7" onclick="filterSelection('Category 7')">Category 7</a>
                         </div>
-                      </div>
-                </div>
-
-                <div class="col=sm-3">
-                    <button> Filter </button>
-                </div>
-
-                <div class="col=sm-3">
-                    <button> Reset </button>
-                </div>
+                    </div>
+                </div> 
+                <button id="filterButtonText"> Filter </button> 
             </div>
 
             <!-- Temporary line breaks -->
@@ -76,13 +65,13 @@
 
             <div class="row">
                 <div id="postBorder" class="col-sm-5">
-                  <h3>Column 1</h3>
+                  <h3>Post 1</h3>
                   <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...
                       Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
                   <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
                 </div>
                 <div id="postBorder" class="col-sm-5">
-                  <h3>Column 2</h3>
+                  <h3>Post 2</h3>
                   <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
                      Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
                      Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
@@ -97,13 +86,13 @@
 
             <div class="row">
                 <div id="postBorder" class="col-sm-5">
-                  <h3>Column 3</h3>
+                  <h3>Post 3</h3>
                   <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...
                      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
                   <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
                 </div>
                 <div id="postBorder" class="col-sm-5">
-                  <h3>Column 4</h3>
+                  <h3>This is a long post title to test the responsiveness of the title</h3>
                   <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
                      Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
                      Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
@@ -111,8 +100,28 @@
                      Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
                  </p>
                  <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
-                </div>
             </div>
+        </div>
+
+        <!-- Temporary line breaks -->
+        <br><br><br><br><br>
+
+        <div class="row">
+            <div id="postBorder" class="col-sm-5">
+              <h3>Post 5</h3>
+              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...
+                 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
+              <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
+            </div>
+            <div id="postBorder" class="col-sm-5">
+              <h3>Post 6</h3>
+              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+             </p>
+             <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
         </div>
     </div>
 
