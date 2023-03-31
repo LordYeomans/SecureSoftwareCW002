@@ -3,17 +3,21 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Page Title</title>
+    <title> Developing Secure Software - Blog </title>
     <link rel="stylesheet" href="stylesheet.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet"> <!-- Need for return to top arrow -->
 </head>
 <body>
+
+    <button onclick="scrollToTop()" id="reutrnTopButton" title="Go to top" class="icon-chevron-up"></button>
+
     <div class="navBar">
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">
-                    <h4> Developing Secure Software </h4>
+                    <h4 id="title"> Developing Secure Software </h4>
                 </div>
                 <div class="col-sm-4">
                     <h6 id="welcomeUser"> Welcome, Yeomans </h6>
@@ -57,7 +61,7 @@
                         </div>
                     </div>
                 </div> 
-                <button id="filterButtonText"> Filter </button> 
+                <button id="filterButtonText" onclick="getFilterSelection()"> Filter </button> 
             </div>
 
             <!-- Temporary line breaks -->
@@ -112,7 +116,7 @@
               <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...
                  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
               <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
-            </div>
+            </div>                      
             <div id="postBorder" class="col-sm-5">
               <h3>Post 6</h3>
               <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
@@ -150,6 +154,33 @@
             document.getElementById('button').innerText = selection;
             document.getElementById("myDropdown").classList.toggle("show");
         }
+
+        // Posts will then be filtered when clicking the 'Filter' button
+        function getFilterSelection() {
+            text = document.getElementById('button').innerText;
+            console.log(text);
+        }
+
+        // Get the button
+        let mybutton = document.getElementById("reutrnTopButton");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {scrollFunction()};
+
+        function scrollFunction() {
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+          }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function scrollToTop() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }   
+
     </script>
 
         <!-- 
