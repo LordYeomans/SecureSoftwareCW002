@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-
+const password = "Noobsarebanned123"; //Change this to match your password
 const createDatabase = async () => {
     const client = new Client({ // Makes client object that we connect to
         host: 'localhost',
@@ -27,14 +27,14 @@ const createTable = async () => {
     const client = new Client({
         host: 'localhost',
         user: 'postgres',
-        password: 'Noobsarebanned123',
+        password: password,
         port: 5432,
         database: databasename
     })
     try{
         await client.connect();
-        await client.query('CREATE TABLE users ( user_id serial PRIMARY KEY,username VARCHAR (50) NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) NOT NULL)');
-        await client.query('CREATE TABLE posts ( post_id serial PRIMARY KEY,user_id serial NOT NULL,post_text VARCHAR (255) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (50) NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) NOT NULL)');
+        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id serial NOT NULL,post_text VARCHAR (255) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
     } catch (error){
         console.error(error.stack);
     } finally{
@@ -125,7 +125,7 @@ app.post("/login", express.urlencoded({ extended: false }), async function(req,r
         const client = new Client({
             host: 'localhost',
             user: 'postgres',
-            password: 'Noobsarebanned123',
+            password: password,
             port: 5432,
             database: databasename
         });
