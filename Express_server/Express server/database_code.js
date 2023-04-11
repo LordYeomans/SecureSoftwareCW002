@@ -2,50 +2,43 @@ const { Client } = require('pg');
 
 const databasename = "my_database"
 
-const client = new Client({ // Makes client object that we connect to
-    host: 'localhost',
-    user: 'postgres',
-    password: 'Noobsarebanned123',
-    port: 5432
-});
-
-
-
 const createDatabase = async () => {
+    const client = new Client({ // Makes client object that we connect to
+        host: 'localhost',
+        user: 'postgres',
+        password: 'Noobsarebanned123',
+        port: 5432
+    });
     try {
         await client.connect();                            // gets connection
         let exist = await client.query('SELECT datname FROM pg_database WHERE datname = $1',[databasename]);
-        if(!exist.rows[0]['datname'] == databasename){
-            await client.query('CREATE DATABASE $1',[databasename]);
-            //flush
+        if(exist.rowCount == 0){
+            await client.query('CREATE DATABASE '+databasename);
         }
+        //flush
     } catch (error) {
         console.error(error.stack);
-        return true;
     } finally {
         await client.end();                                // closes connection
-        return true;
     }
 };
 
 const createTable = async () => {
+    const client = new Client({
+        host: 'localhost',
+        user: 'postgres',
+        password: 'Noobsarebanned123',
+        port: 5432,
+        database: databasename
+    })
     try{
-        const client = new Client({
-            host: 'localhost',
-            user: 'postgres',
-            password: 'Noobsarebanned123',
-            port: 5432,
-            database: databasename
-        })
         await client.connect();
         await client.query('CREATE TABLE users ( user_id serial PRIMARY KEY,username VARCHAR (50) NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) NOT NULL)');
         await client.query('CREATE TABLE posts ( post_id serial PRIMARY KEY,user_id serial NOT NULL,post_text VARCHAR (255) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
     } catch (error){
-        //console.error(error.stack);
-        return false;
+        console.error(error.stack);
     } finally{
         await client.end();
-        return true;
     }
 };
 // Sets up express web server ---
@@ -59,12 +52,6 @@ const port = process.env.PORT || 5000; //This will listen on localhost:5000
 // Enables text to be from the html
 app.use(bodyParser.urlencoded({extended: false}));
 // ----
-
-
-
-
-
-
 
 
 const oneDay = 24* 60* 60* 1000;
@@ -111,7 +98,7 @@ app.post("/logout", express.urlencoded({extended: false}), function(req,res){
     }
 });
 // For registration
-app.post("/submit-data", express.urlencoded({ extended: false }), async function(req,res) {
+app.post("/login", express.urlencoded({ extended: false }), async function(req,res) {
     //get the data from the form
     var validflag = 1;
     const username = req.body.rej_username;
@@ -135,14 +122,14 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
         validflag = 0;
     }
     if (validflag == 1 && !req.session.logedin){
+        const client = new Client({
+            host: 'localhost',
+            user: 'postgres',
+            password: 'Noobsarebanned123',
+            port: 5432,
+            database: databasename
+        });
         try{
-            const client = new Client({
-                host: 'localhost',
-                user: 'postgres',
-                password: 'Noobsarebanned123',
-                port: 5432,
-                database: databasename
-            });
             await client.connect();
             const tex = 'SELECT email FROM users WHERE email = $1';
             let response = await client.query(tex,emailcheck);
@@ -172,11 +159,11 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
     }
 });
 
-
-
-createDatabase();
-createTable(); 
-
+const create = async function(){
+    await createDatabase();
+    await createTable();
+}
+create();
 
 
 app.listen(port);
