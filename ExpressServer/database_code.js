@@ -5,11 +5,9 @@ const databasename = "my_database"
 const client = new Client({ // Makes client object that we connect to
     host: 'localhost',
     user: 'postgres',
-    password: 'Noobsarebanned123',
+    password: 'user',
     port: 5432
 });
-
-
 
 const createDatabase = async () => {
     try {
@@ -33,7 +31,7 @@ const createTable = async () => {
         const client = new Client({
             host: 'localhost',
             user: 'postgres',
-            password: 'Noobsarebanned123',
+            password: 'user',
             port: 5432,
             database: databasename
         })
@@ -58,14 +56,6 @@ var app = express();
 const port = process.env.PORT || 5000; //This will listen on localhost:5000
 // Enables text to be from the html
 app.use(bodyParser.urlencoded({extended: false}));
-// ----
-
-
-
-
-
-
-
 
 const oneDay = 24* 60* 60* 1000;
 // Secret should be array of random strings to stop session hijacking (Secure cookies should also be used)
@@ -76,8 +66,6 @@ app.use(session({
     cookie: {maxAge: oneDay}
 }));
 
-
-
 function isAuthenticated (req, res, next) {
     if (req.session.logedin) next()
     else next('route')
@@ -85,20 +73,19 @@ function isAuthenticated (req, res, next) {
   
 app.get('/', isAuthenticated, function (req, res) {
     // this is only called when there is an authentication user due to isAuthenticated
-    res.sendFile(path.join(__dirname, "test1pg2.html"));
+    res.sendFile(path.join(__dirname, "index.html"));
 })
 
 // When a get request is recieved the html page is returned
 app.get("/", function(req, res){
-    res.sendFile(path.join(__dirname, "test1.html"));
+    res.sendFile(path.join(__dirname, "login.html"));
 });
 
-/*
 // Imports the Style Sheet
 app.get('/stylesheet.css', (request, responseC) => {
   responseC.sendFile(path.join(__dirname, "stylesheet.css"))
 });
-*/
+
 app.post("/logout", express.urlencoded({extended: false}), function(req,res){
     //Check if they are logged in
     if(req.session.logedin){
@@ -110,6 +97,15 @@ app.post("/logout", express.urlencoded({extended: false}), function(req,res){
         });
     }
 });
+
+app.post("/register", (req,res) => {
+    res.sendFile(path.join(__dirname, "register.html"));
+});
+
+app.post("/login", (req, res) => {
+    res.sendFile(path.join(__dirname, "login.html"));
+});
+
 // For registration
 app.post("/submit-data", express.urlencoded({ extended: false }), async function(req,res) {
     //get the data from the form
@@ -139,7 +135,7 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
             const client = new Client({
                 host: 'localhost',
                 user: 'postgres',
-                password: 'Noobsarebanned123',
+                password: 'user',
                 port: 5432,
                 database: databasename
             });
@@ -148,7 +144,7 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
             let response = await client.query(tex,emailcheck);
             console.log(response.rows[0]);
             if(response.rows[0] != undefined){
-              res.send("An account with that email already exists");
+                res.sendFile(path.join(__dirname, "incorrect.html"));
             }
             else{
                 // HASHING & SALTING GOES HERE ------------------
@@ -168,16 +164,13 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
         }finally{
             await client.end();
         }
-        //could send redirect header or full html page
+        //could send redirect header or full html page        
     }
 });
-
-
 
 createDatabase();
 createTable(); 
 
-
-
 app.listen(port);
 console.log("Server started at port :" +port);
+

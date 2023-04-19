@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Developing Secure Software - Blog </title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet"> <!-- Need for return to top arrow -->
+</head>
+<body>
+
+    <button onclick="scrollToTop()" id="reutrnTopButton" title="Go to top" class="icon-chevron-up"></button>
+
+    <div class="navBar">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4 id="title"> Developing Secure Software </h4>
+                </div>
+                <div class="col-sm-4">
+                    <!--
+                    <h6 id="welcomeUser"> Welcome, User </h6>
+                    -->
+                </div>
+                <div class="col-sm-4">
+                    <form action="/logout" method="post">
+                        <input id="signOut" type="submit" value="Logout">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+    <div class="main">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <form action="/action_page.php">
+                        <input class="searchPosts" type="text" placeholder="Search for posts" minlength="3" maxlength="60">
+                        <button type="submit"><i class="fa fa-search"></i></button>
+                        <a><button> Create Post </button></a>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Temporary line breaks -->
+            <br><br>
+
+            <div class="row">
+                <div class="col-sm-7">
+                    <a id=filterText> Filter by category: </a>
+                    <div class="dropdown">
+                        <button onclick="showDropdown()" id="button" class="dropbtn">Categories</button>
+                        <div id="myDropdown" class="dropdown-content">
+                          <input type="text" placeholder="Search for a category..." id="myInput" onkeyup="filterDropdown()">
+                          <a href="#1" onclick="filterSelection('Category 1')">Category 1</a>
+                          <a href="#2" onclick="filterSelection('Category 2')">Category 2</a>
+                          <a href="#3" onclick="filterSelection('Category 3')">Category 3</a>
+                          <a href="#4" onclick="filterSelection('Category 4')">Category 4</a>
+                          <a href="#5" onclick="filterSelection('Category 5')">Category 5</a>
+                          <a href="#6" onclick="filterSelection('Category 6')">Category 6</a>
+                          <a href="#7" onclick="filterSelection('Category 7')">Category 7</a>
+                        </div>
+                    </div>
+                </div> 
+                <button id="filterButtonText" onclick="getFilterSelection()"> Filter </button> 
+            </div>
+
+            <!-- Temporary line breaks -->
+            <br><br><br><br><br>
+
+            <div class="row">
+                <div id="postBorder" class="col-sm-5">
+                  <h3>Post 1</h3>
+                  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...
+                      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
+                  <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
+                </div>
+                <div id="postBorder" class="col-sm-5">
+                  <h3>Post 2</h3>
+                  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
+                     <p> Posted by: Yeomans @ 18:31:36 27/03/2023 <br><button> Delete Post </button></p>
+                </div>
+            </div>
+
+            <!-- Temporary line breaks -->
+            <br><br><br><br><br>
+
+            <div class="row">
+                <div id="postBorder" class="col-sm-5">
+                  <h3>Post 3</h3>
+                  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...
+                     Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
+                  <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
+                </div>
+                <div id="postBorder" class="col-sm-5">
+                  <h3>This is a long post title to test the responsiveness of the title</h3>
+                  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                     Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                 </p>
+                 <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
+            </div>
+        </div>
+
+        <!-- Temporary line breaks -->
+        <br><br><br><br><br>
+
+        <div class="row">
+            <div id="postBorder" class="col-sm-5">
+              <h3>Post 5</h3>
+              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit...
+                 Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...</p>
+              <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
+            </div>                      
+            <div id="postBorder" class="col-sm-5">
+              <h3>Post 6</h3>
+              <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris... 
+                 Lorem ipsum dolor sit amet, consectetur adipisicing elit... Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris...
+             </p>
+             <p> Posted by: User981 @ 19:03:45 26/03/2023 </p>
+        </div>
+    </div>
+
+    <script>
+        function showDropdown() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+            
+        function filterDropdown() {
+            var input, filter, ul, li, a, i;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            div = document.getElementById("myDropdown");
+            a = div.getElementsByTagName("a");
+            for (i = 0; i < a.length; i++) {
+                txtValue = a[i].textContent || a[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                  a[i].style.display = "";
+                } else {
+                  a[i].style.display = "none";
+                }
+            }
+        }
+
+        function filterSelection(selection) {
+            document.getElementById('button').innerText = selection;
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        // Posts will then be filtered when clicking the 'Filter' button
+        function getFilterSelection() {
+            text = document.getElementById('button').innerText;
+            console.log(text);
+        }
+
+        // Get the button
+        let mybutton = document.getElementById("reutrnTopButton");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {scrollFunction()};
+
+        function scrollFunction() {
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+          }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function scrollToTop() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }   
+
+    </script>
+    
+        <!-- Temporary break lines -->
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+        
+</body>
+</html>

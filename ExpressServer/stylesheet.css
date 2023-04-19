@@ -17,9 +17,14 @@
 
 #signOut {
   font-size: 15px;
-  padding-top: 2%;
   padding-left: 5%;
+  padding-top: 2%;
   font-weight: bold;
+  background: none;
+	color: inherit;
+	border: none;
+	cursor: pointer;
+	outline: inherit;
 }
 
 #signOut:hover {
@@ -49,7 +54,7 @@
   overflow: hidden;
   background-color: rgb(223, 223, 223);
   padding-top: 5%;
-  padding-bottom: 1000px;
+  /*padding-bottom: 1000px;*/
   color: black;
 }
 
@@ -63,6 +68,32 @@
 #postBorder:hover {
   transform: scale(1.15); 
   max-block-size: 500px;
+}
+/* ---------------------------------------- Login & Register ---------------------------------------- */
+
+.formBoldBtn {
+  font-weight: bold;
+  background: none;
+	color: inherit;
+	border: none;
+	cursor: pointer;
+	outline: inherit;
+}
+
+.box {
+  background-color: rgb(199, 199, 199);
+  background-size: 300px;
+  padding-top: 5%;
+  padding-bottom: 5%;
+  display: inline-block;
+  width: 700px;
+  height: 450px;
+  justify-content: center;
+}
+
+#incorrectText {
+  color:red;
+  font-weight: bold;
 }
 
 /* ---------------------------------------- Dropdown Button ---------------------------------------- */
