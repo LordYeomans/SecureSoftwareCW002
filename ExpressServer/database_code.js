@@ -1,6 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
+const password = "user"; //Change this to match your password
 
 const client = new Client({ // Makes client object that we connect to
     host: 'localhost',
@@ -10,40 +11,49 @@ const client = new Client({ // Makes client object that we connect to
 });
 
 const createDatabase = async () => {
+    const client = new Client({ // Makes client object that we connect to
+        host: 'localhost',
+        user: 'postgres',
+        password: 'user',
+        port: 5432
+    });
     try {
         await client.connect();                            // gets connection
         let exist = await client.query('SELECT datname FROM pg_database WHERE datname = $1',[databasename]);
-        if(!exist.rows[0]['datname'] == databasename){
-            await client.query('CREATE DATABASE $1',[databasename]);
-            //flush
+        if(exist.rowCount == 0){
+            await client.query('CREATE DATABASE '+databasename);
         }
+        //flush
     } catch (error) {
         console.error(error.stack);
-        return true;
     } finally {
         await client.end();                                // closes connection
-        return true;
     }
 };
 
 const createTable = async () => {
+    const client = new Client({
+        host: 'localhost',
+        user: 'postgres',
+        password: password,
+        port: 5432,
+        database: databasename
+    })
     try{
         const client = new Client({
             host: 'localhost',
             user: 'postgres',
-            password: 'user',
+            password: password,
             port: 5432,
             database: databasename
         })
         await client.connect();
-        await client.query('CREATE TABLE users ( user_id serial PRIMARY KEY,username VARCHAR (50) NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) NOT NULL)');
-        await client.query('CREATE TABLE posts ( post_id serial PRIMARY KEY,user_id serial NOT NULL,post_text VARCHAR (255) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (50) NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) NOT NULL)');
+        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id serial NOT NULL,post_text VARCHAR (255) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
     } catch (error){
-        //console.error(error.stack);
-        return false;
+        console.error(error.stack);
     } finally{
         await client.end();
-        return true;
     }
 };
 // Sets up express web server ---
@@ -131,6 +141,13 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
         validflag = 0;
     }
     if (validflag == 1 && !req.session.logedin){
+        const client = new Client({
+            host: 'localhost',
+            user: 'postgres',
+            password: password,
+            port: 5432,
+            database: databasename
+        });
         try{
             const client = new Client({
                 host: 'localhost',
@@ -172,5 +189,4 @@ createDatabase();
 createTable(); 
 
 app.listen(port);
-console.log("Server started at port :" +port);
-
+console.log("Server started at port :" + port);
