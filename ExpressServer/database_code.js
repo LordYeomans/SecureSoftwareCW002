@@ -1,20 +1,14 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const password = "user"; //Change this to match your password
+const pass= "user"; //Change this to match your password
 
-const client = new Client({ // Makes client object that we connect to
-    host: 'localhost',
-    user: 'postgres',
-    password: 'user',
-    port: 5432
-});
 
 const createDatabase = async () => {
     const client = new Client({ // Makes client object that we connect to
         host: 'localhost',
         user: 'postgres',
-        password: 'user',
+        password: pass,
         port: 5432
     });
     try {
@@ -35,7 +29,7 @@ const createTable = async () => {
     const client = new Client({
         host: 'localhost',
         user: 'postgres',
-        password: password,
+        password: pass,
         port: 5432,
         database: databasename
     })
@@ -43,7 +37,7 @@ const createTable = async () => {
         const client = new Client({
             host: 'localhost',
             user: 'postgres',
-            password: password,
+            password: pass,
             port: 5432,
             database: databasename
         })
@@ -125,8 +119,13 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
     const password = req.body.rej_password;
 
     //DATA sterilisation goes here (CHECK FOR SPECIAL CHARACTERS)
-
-    const emailcheck = [email];
+    if(sanatise(email)){
+        emailcheck = [email];
+    }
+    else{
+        res.send("Invalid email");
+        return;
+    }
     const values = [username,password,email];
     if (password == ""){
         res.send("Need password");
@@ -149,13 +148,6 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
             database: databasename
         });
         try{
-            const client = new Client({
-                host: 'localhost',
-                user: 'postgres',
-                password: 'user',
-                port: 5432,
-                database: databasename
-            });
             await client.connect();
             const tex = 'SELECT email FROM users WHERE email = $1';
             let response = await client.query(tex,emailcheck);
@@ -185,8 +177,53 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
     }
 });
 
-createDatabase();
-createTable(); 
+function sanatise(text){
+    var santext = text.replaceAll('"',"");
+    santext = santext.replaceAll("/","");
+    santext = santext.replaceAll(";","");
+    if(santext == text){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+function salt(text){
+    const strong = random;
+    //Generate strong random number
+    //concat with text
+    //return text and strong number
+    
+    return [text, strong];
+}
+
+async function search(req,res,text){
+    const client = new Client({
+        host: 'localhost',
+        user: 'postgres',
+        password: pass,
+        port: 5432,
+        database: databasename
+    });
+    try{
+        const tex = req.bodyParser.ser_text;
+        await client.connect();
+        const quer = 'SELECT * FROM posts WHERE category LIKE $1';
+        let result = await client.query(quer,[tex]);
+        return result.rows;
+    } catch(err){
+        console.err(err);
+    }finally{
+        client.end();
+    }
+}
+
+const create = async function(){
+    await createDatabase();
+    await createTable();
+}
+create();
 
 app.listen(port);
 console.log("Server started at port :" + port);
