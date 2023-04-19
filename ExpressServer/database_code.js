@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const pass= "user"; //Change this to match your password
+const pass= "Noobsarebanned123"; //Change this to match your password
 
 
 const createDatabase = async () => {
@@ -143,7 +143,7 @@ app.post("/submit-data", express.urlencoded({ extended: false }), async function
         const client = new Client({
             host: 'localhost',
             user: 'postgres',
-            password: password,
+            password: pass,
             port: 5432,
             database: databasename
         });
