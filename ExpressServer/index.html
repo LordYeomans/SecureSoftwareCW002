@@ -37,8 +37,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-12">
-                    <form action="/action_page.php">
-                        <input class="searchPosts" type="text" placeholder="Search for posts" minlength="3" maxlength="60">
+                    <form action="/search" method="post">
+                        <input class="searchPosts" type="text" placeholder="Search for posts" minlength="3" maxlength="60" id="ser_text" name="ser_text">
                         <button type="submit"><i class="fa fa-search"></i></button>
                         <a><button> Create Post </button></a>
                     </form>
