@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const pass= "user"; //Change this to match your password
+const pass= "Noobsarebanned123"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
 
 const createDatabase = async () => {
@@ -103,6 +103,35 @@ app.get("/createPost", (req,res) => {
     res.sendFile(path.join(__dirname, "createPost.html"));
 }); 
 
+app.get("/login",(req,res) =>{
+    res.sendFile(path.join(__dirname, "login.html"));
+});
+app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res) => {
+    const client = new Client({
+        host: 'localhost',
+        user: 'postgres',
+        password: pass,
+        port: 5432,
+        database: databasename
+    });
+    let cat = req.body.BoxSelect;
+    let usr = req.session.user;
+    let title = req.body.pTitle;
+    title = title.toUpperCase();
+    let post = req.body.postTextArea;
+    let values = [usr,title,cat,post];
+    //console.log(usr);
+    try{
+        await client.connect();
+        //Sanatise for javascript and html tags
+        await client.query("INSERT INTO posts (user_id,title,category,post_text) VALUES($1,$2,$3,$4)",values);
+        res.redirect("/");
+    } catch(err){
+        console.error(err.stack);
+    } finally{
+        await client.end();
+    }
+})
 app.post("/login", express.urlencoded({ extended: false }), async (req, res) => {
     if(req.session.logedin){
         res.redirect("/");
@@ -127,6 +156,8 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             if(res_pass.rowCount > 0){
                 if(res_pass.rows[0]['password'] == pas){
                     req.session.logedin = true;
+                    let id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
+                    req.session.user = id.rows[0]['user_id'];
                     res.redirect("/");
                 }
             }
@@ -140,10 +171,11 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
         }
     }
 });
-//could to upper all titles in database and here to avoid case sensitve search
+
+
+
 app.post("/search", async (req,res) =>{
     let text = req.body.ser_text;
-    console.log(text);
     const client = new Client({
         host: 'localhost',
         user: 'postgres',
@@ -152,6 +184,7 @@ app.post("/search", async (req,res) =>{
         database: databasename
     });
     try{
+        text = text.toUpperCase();
         text = "%"+text+"%";
         await client.connect();
         const quer = 'SELECT * FROM posts WHERE title LIKE $1';
@@ -196,7 +229,9 @@ app.post("/search", async (req,res) =>{
                         <form action="/search" method="post">
                             <input class="searchPosts" type="text" placeholder="Search for posts" minlength="3" maxlength="60" id="ser_text" name="ser_text">
                             <button type="submit"><i class="fa fa-search"></i></button>
-                            <a><button> Create Post </button></a>
+                        </form>
+                        <form action="/createPost" method="get">
+                            <br><a><button> Create Post </button></a>
                         </form>
                     </div>
                 </div>
@@ -245,61 +280,63 @@ app.post("/search", async (req,res) =>{
     }
     res.write(`
     <script>
-            function showDropdown() {
-                document.getElementById("myDropdown").classList.toggle("show");
-            }
-                
-            function filterDropdown() {
-                var input, filter, ul, li, a, i;
-                input = document.getElementById("myInput");
-                filter = input.value.toUpperCase();
-                div = document.getElementById("myDropdown");
-                a = div.getElementsByTagName("a");
-                for (i = 0; i < a.length; i++) {
-                    txtValue = a[i].textContent || a[i].innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                      a[i].style.display = "";
-                    } else {
-                      a[i].style.display = "none";
-                    }
+        function showDropdown() {
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+            
+        function filterDropdown() {
+            var input, filter, ul, li, a, i;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            div = document.getElementById("myDropdown");
+            a = div.getElementsByTagName("a");
+            for (i = 0; i < a.length; i++) {
+                txtValue = a[i].textContent || a[i].innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                  a[i].style.display = "";
+                } else {
+                  a[i].style.display = "none";
                 }
             }
+        }
+
+        function filterSelection(selection) {
+            document.getElementById('button').innerText = selection;
+            document.getElementById("myDropdown").classList.toggle("show");
+        }
+
+        // Posts will then be filtered when clicking the 'Filter' button
+        function getFilterSelection() {
+            text = document.getElementById('button').innerText;
+            console.log(text);
+        }
+
+        // Get the button
+        let mybutton = document.getElementById("reutrnTopButton");
+
+        // When the user scrolls down 200px from the top of the document, show the button
+        window.onscroll = function() {scrollFunction()};
+
+        function scrollFunction() {
+        if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
+            mybutton.style.display = "block";
+        } else {
+            mybutton.style.display = "none";
+          }
+        }
+
+        // When the user clicks on the button, scroll to the top of the document
+        function scrollToTop() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }   
+
+    </script>
     
-            function filterSelection(selection) {
-                document.getElementById('button').innerText = selection;
-                document.getElementById("myDropdown").classList.toggle("show");
-            }
-    
-            // Posts will then be filtered when clicking the 'Filter' button
-            function getFilterSelection() {
-                text = document.getElementById('button').innerText;
-                console.log(text);
-            }
-    
-            // Get the button
-            let mybutton = document.getElementById("reutrnTopButton");
-    
-            // When the user scrolls down 200px from the top of the document, show the button
-            window.onscroll = function() {scrollFunction()};
-    
-            function scrollFunction() {
-            if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
-                mybutton.style.display = "block";
-            } else {
-                mybutton.style.display = "none";
-              }
-            }
-    
-            // When the user clicks on the button, scroll to the top of the document
-            function scrollToTop() {
-                document.body.scrollTop = 0;
-                document.documentElement.scrollTop = 0;
-            }   
-    
-        </script>
+        <!-- Temporary break lines -->
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
         
-            <!-- Temporary break lines -->
-            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</body>
     `);
     res.end();
     } catch(err){
@@ -318,26 +355,9 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
     const password = req.body.rej_password;
 
     //DATA sterilisation goes here (CHECK FOR SPECIAL CHARACTERS)
-    if(sanatise(email)){
-        emailcheck = [email];
-    }
-    else{
-        res.send("Invalid email");
-        return;
-    }
+    
     const values = [username,password,email];
-    if (password == ""){
-        res.send("Need password");
-        validflag = 0;
-    }
-    if(username == ""){
-        res.send("Need username");
-        validflag = 0;
-    }
-    if(email ==""){
-        res.send("Need email");
-        validflag = 0;
-    }
+    const emailcheck = [email];
     if (validflag == 1 && !req.session.logedin){
         const client = new Client({
             host: 'localhost',
@@ -350,16 +370,17 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
             await client.connect();
             const tex = 'SELECT email FROM users WHERE email = $1';
             let response = await client.query(tex,emailcheck);
-            console.log(response.rows[0]);
             if(response.rows[0] != undefined){
                 res.sendFile(path.join(__dirname, "incorrect.html"));
             }
             else{
                 // HASHING & SALTING GOES HERE ------------------
                 await client.query('INSERT INTO users(username,password,email) VALUES($1,$2,$3)',values);
+                let id = await client.query('SELECT user_id FROM users WHERE username = $1',[username]);
                 //await res.send("Account created");
                 req.session.regenerate(function (err){
                     req.session.logedin = true;
+                    req.session.user = id.rows[0]['user_id'];
                     req.session.save(function (err){
                         if(err) return next(err);
                         res.redirect('/');
