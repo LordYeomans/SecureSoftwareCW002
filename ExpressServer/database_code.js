@@ -54,7 +54,8 @@ const port = process.env.PORT || 5000; //This will listen on localhost:5000
 // Enables text to be from the html
 app.use(bodyParser.urlencoded({extended: false}));
 
-const oneDay = 24* 60* 60* 1000;
+//const oneDay = 24* 60* 60* 1000;
+const oneDay = 3* 60* 1000;
 // Secret should be array of random strings to stop session hijacking (Secure cookies should also be used)
 app.use(session({
     secret: "Session1",
@@ -119,6 +120,9 @@ app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res)
     let title = req.body.pTitle;
     title = title.toUpperCase();
     let post = req.body.postTextArea;
+    if(!sanatise(post) || !sanatise(title)){
+        res.send("NO BAD");
+    }
     let values = [usr,title,cat,post];
     //console.log(usr);
     try{
@@ -151,19 +155,82 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             //get password
             //hash it
             //query the databse
+            let start = Date.now();
+            let usrflag = 0;
+            let pasflag = 0;
             const tex = 'SELECT password FROM users WHERE username = $1';
             let res_pass = await client.query(tex,[usr]);
-            if(res_pass.rowCount > 0){
-                if(res_pass.rows[0]['password'] == pas){
-                    req.session.logedin = true;
-                    let id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
-                    req.session.user = id.rows[0]['user_id'];
-                    res.redirect("/");
+            try{
+                if(res_pass.rowCount > 0){
+                    usrflag = 1;
                 }
+                if(res_pass.rows[0]['password'] == pas){
+                    pasflag = 1;   
+                }
+            }catch(err){
+
+            }
+            req.session.loginattempt++;
+            if(usrflag == 1 && pasflag == 1 && req.session.loginattempt < 10){
+                req.session.logedin = true;
+                let id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
+                req.session.user = id.rows[0]['user_id'];
+                res.redirect("/");
+            }
+            else if(req.session.loginattempt > 9){
+                res.write(`
+                <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title> Developing Secure Software - Login </title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+</head>
+<body style="background-color: rgb(223, 223, 223);">
+
+    <div class="navBar">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h4 id="title"> Developing Secure Software </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="container">
+            <h1> LOGIN </h1>
+            <p> Please enter your Username and Password!</p>
+            <div class="box">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <form id="myForm" action="/login" method="post" >
+                            <label for="log_username">Username</label><br>
+                            <input type="text" id="log_username" name="log_username" required><br><br>
+                            <label for="log_password">Password</label><br>
+                            <input type="text" id="log_password" name="log_password" required minlength="8"><br><br>
+                            <input type="submit" value="Submit"  class="formSubmitBtn">
+                        </form>
+                        <form action="/register" method="get"><br>
+                            <p> Don't have an account? <input type="submit" value="Sign Up" class="formBoldBtn"> </p> 
+                        </form>
+                        <p id="incorrectText"> Too many tries </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+                `)
             }
             else{
                 res.sendFile(path.join(__dirname, "incorrectLogin.html"));
             }
+            let end = Date.now();
+            console.log("time taken = "+(end-start));
         } catch(err){
             console.error(err);
         } finally{
@@ -238,26 +305,6 @@ app.post("/search", async (req,res) =>{
                 
                 <!-- Temporary line breaks -->
                 <br><br>
-    
-                <div class="row">
-                    <div class="col-sm-7">
-                        <a id=filterText> Filter by category: </a>
-                        <div class="dropdown">
-                            <button onclick="showDropdown()" id="button" class="dropbtn">Categories</button>
-                            <div id="myDropdown" class="dropdown-content">
-                              <input type="text" placeholder="Search for a category..." id="myInput" onkeyup="filterDropdown()">
-                              <a href="#1" onclick="filterSelection('Category 1')">Category 1</a>
-                              <a href="#2" onclick="filterSelection('Category 2')">Category 2</a>
-                              <a href="#3" onclick="filterSelection('Category 3')">Category 3</a>
-                              <a href="#4" onclick="filterSelection('Category 4')">Category 4</a>
-                              <a href="#5" onclick="filterSelection('Category 5')">Category 5</a>
-                              <a href="#6" onclick="filterSelection('Category 6')">Category 6</a>
-                              <a href="#7" onclick="filterSelection('Category 7')">Category 7</a>
-                            </div>
-                        </div>
-                    </div> 
-                    <button id="filterButtonText" onclick="getFilterSelection()"> Filter </button> 
-                </div>
     
                 <!-- Temporary line breaks -->
                 <br><br><br><br><br>
@@ -398,9 +445,9 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
 });
 
 function sanatise(text){
-    var santext = text.replaceAll('"',"");
-    santext = santext.replaceAll("/","");
-    santext = santext.replaceAll(";","");
+    var santext = text.replaceAll('<',"");
+    santext = santext.replaceAll(">","");
+    santext = santext.replaceAll('"',"");
     if(santext == text){
         return true;
     }
