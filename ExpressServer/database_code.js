@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const pass= "Noobsarebanned123"; //Change this to match your password
+const pass= "user"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
 
 const createDatabase = async () => {
@@ -99,6 +99,10 @@ app.get("/register", (req,res) => {
     res.sendFile(path.join(__dirname, "register.html"));
 });
 
+app.get("/createPost", (req,res) => {
+    res.sendFile(path.join(__dirname, "createPost.html"));
+}); 
+
 app.post("/login", express.urlencoded({ extended: false }), async (req, res) => {
     if(req.session.logedin){
         res.redirect("/");
@@ -127,7 +131,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
                 }
             }
             else{
-                res.send("Invalid details");
+                res.sendFile(path.join(__dirname, "incorrectLogin.html"));
             }
         } catch(err){
             console.error(err);
