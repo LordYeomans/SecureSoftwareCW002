@@ -120,20 +120,21 @@ app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res)
     let title = req.body.pTitle;
     title = title.toUpperCase();
     let post = req.body.postTextArea;
+    //Sanatise for javascript and html tags
     if(!sanatise(post) || !sanatise(title)){
-        res.send("NO BAD");
+        res.redirect("/createPost");
     }
-    let values = [usr,title,cat,post];
-    //console.log(usr);
-    try{
-        await client.connect();
-        //Sanatise for javascript and html tags
-        await client.query("INSERT INTO posts (user_id,title,category,post_text) VALUES($1,$2,$3,$4)",values);
-        res.redirect("/");
-    } catch(err){
-        console.error(err.stack);
-    } finally{
-        await client.end();
+    else{
+        let values = [usr,title,cat,post];
+        try{
+            await client.connect();
+            await client.query("INSERT INTO posts (user_id,title,category,post_text) VALUES($1,$2,$3,$4)",values);
+            res.redirect("/");
+        } catch(err){
+            console.error(err.stack);
+        } finally{
+            await client.end();
+        }
     }
 })
 app.post("/login", express.urlencoded({ extended: false }), async (req, res) => {
@@ -160,6 +161,8 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             let pasflag = 0;
             const tex = 'SELECT password FROM users WHERE username = $1';
             let res_pass = await client.query(tex,[usr]);
+            console.log(res_pass.rowCount);
+            console.log(res_pass.rows[0]['password']);
             try{
                 if(res_pass.rowCount > 0){
                     usrflag = 1;
@@ -171,13 +174,8 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
 
             }
             req.session.loginattempt++;
-            if(usrflag == 1 && pasflag == 1 && req.session.loginattempt < 10){
-                req.session.logedin = true;
-                let id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
-                req.session.user = id.rows[0]['user_id'];
-                res.redirect("/");
-            }
-            else if(req.session.loginattempt > 9){
+            
+            if(req.session.loginattempt > 9){
                 res.write(`
                 <head>
     <meta charset="utf-8">
@@ -225,6 +223,12 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
     </div>
 </body>
                 `)
+            }
+            else if(usrflag == 1 && pasflag == 1){
+                req.session.logedin = true;
+                let id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
+                req.session.user = id.rows[0]['user_id'];
+                res.redirect("/");
             }
             else{
                 res.sendFile(path.join(__dirname, "incorrectLogin.html"));
