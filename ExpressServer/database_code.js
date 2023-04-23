@@ -35,8 +35,8 @@ const createTable = async () => {
     })
     try{
         await client.connect();
-        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (50) NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) NOT NULL)');
-        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (255) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (50) UNIQUE NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL)');
+        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
     } catch (error){
         console.error(error.stack);
     } finally{
@@ -47,6 +47,7 @@ const createTable = async () => {
 const express = require("express");
 const path = require("path");
 const bodyParser = require("body-parser");
+const jsSHA = require("jssha");
 var session = require("express-session");
 
 var app = express();
@@ -107,6 +108,7 @@ app.get("/createPost", (req,res) => {
 app.get("/login",(req,res) =>{
     res.sendFile(path.join(__dirname, "login.html"));
 });
+
 app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res) => {
     const client = new Client({
         host: 'localhost',
@@ -120,29 +122,24 @@ app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res)
     let title = req.body.pTitle;
     title = title.toUpperCase();
     let post = req.body.postTextArea;
-    //Sanatise for javascript and html tags
-    if(!sanatise(post) || !sanatise(title)){
-        res.redirect("/createPost");
+
+    let values = [usr,title,cat,post];
+    try{
+        await client.connect();
+        await client.query("INSERT INTO posts (user_id,title,category,post_text) VALUES($1,$2,$3,$4)",values);
+        res.redirect("/");
+    } catch(err){
+        console.error(err.stack);
+    } finally{
+        await client.end();
     }
-    else{
-        let values = [usr,title,cat,post];
-        try{
-            await client.connect();
-            await client.query("INSERT INTO posts (user_id,title,category,post_text) VALUES($1,$2,$3,$4)",values);
-            res.redirect("/");
-        } catch(err){
-            console.error(err.stack);
-        } finally{
-            await client.end();
-        }
-    }
-})
+});
 app.post("/login", express.urlencoded({ extended: false }), async (req, res) => {
     if(req.session.logedin){
         res.redirect("/");
     }
     else{
-        const pas = req.body.log_password;
+        var pas = req.body.log_password;
         const usr = req.body.log_username;
         const client = new Client({
             host: 'localhost',
@@ -152,29 +149,35 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             database: databasename
         });
         try{
-            await client.connect();
-            //get password
-            //hash it
-            //query the databse
+            //Get current time
             let start = Date.now();
-            let usrflag = 0;
-            let pasflag = 0;
-            const tex = 'SELECT password FROM users WHERE username = $1';
-            let res_pass = await client.query(tex,[usr]);
-            console.log(res_pass.rowCount);
-            console.log(res_pass.rows[0]['password']);
-            try{
-                if(res_pass.rowCount > 0){
-                    usrflag = 1;
-                }
-                if(res_pass.rows[0]['password'] == pas){
-                    pasflag = 1;   
-                }
-            }catch(err){
-
+            //Connect to db
+            await client.connect();
+            //Randomly generate salt
+            let randsalt = Math.round(Math.random() * (10000 - 1) + 1);
+            //Query for user Id 
+            const id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
+            //If found salt
+            if(id.rowCount > 0){
+                pas = salt(pas,id.rows[0]['user_id']);
+                pas = hash(pas);
             }
-            req.session.loginattempt++;
-            
+            //If not found use random salt
+            else{
+                pas = salt(pas,randsalt.toString());
+                pas = hash(pas);
+            }
+            let result = await client.query('SELECT 1 FROM users WHERE username = $1 AND password = $2',[usr,pas]);
+            //SELECT 1 FROM users WHERE username = $1 AND password = $2
+            //Use result of that to log in (will only return 1 if the username and password exist in a single record)
+            if(result.rowCount > 0){
+                req.session.logedin = true;
+                req.session.user = id.rows[0]['user_id'];
+                res.redirect("/");
+            }
+            else{
+                req.session.loginattempt++;
+            }
             if(req.session.loginattempt > 9){
                 res.write(`
                 <head>
@@ -224,13 +227,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
 </body>
                 `)
             }
-            else if(usrflag == 1 && pasflag == 1){
-                req.session.logedin = true;
-                let id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
-                req.session.user = id.rows[0]['user_id'];
-                res.redirect("/");
-            }
-            else{
+            else if(result.rowCount < 1){
                 res.sendFile(path.join(__dirname, "incorrectLogin.html"));
             }
             let end = Date.now();
@@ -242,7 +239,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
         }
     }
 });
-
+//html encode < >
 
 
 app.post("/search", async (req,res) =>{
@@ -318,10 +315,14 @@ app.post("/search", async (req,res) =>{
         if(i%2 == 0){
             res.write('<div class="row">');
         }
+
+        title = escape(result.rows[i]['title']);
+        text = escape(result.rows[i]['post_text']);
+
         res.write('<div id="postBorder" class="col-sm-5">');
-        res.write('<h3>'+result.rows[i]['title']+'</h3>');
-        res.write('<p>'+result.rows[i]['post_text']+'</p>');
-        res.write('<p>'+result.rows[i]['timestamp']+'</p>');
+        res.write('<h3>'+title+'</h3>');
+        res.write('<p>'+text+'</p>');
+        res.write('<p>'+time+'</p>');
         res.write('</div>');
         if(i%2 == 1 || i == (result.rowCount-1)){
             res.write('</div>');
@@ -400,16 +401,14 @@ app.post("/search", async (req,res) =>{
 // For registration
 app.post("/register", express.urlencoded({ extended: false }), async function(req,res) {
     //get the data from the form
-    var validflag = 1;
     const username = req.body.rej_username;
     const email = req.body.rej_email;
-    const password = req.body.rej_password;
+    var password = req.body.rej_password;
 
-    //DATA sterilisation goes here (CHECK FOR SPECIAL CHARACTERS)
     
-    const values = [username,password,email];
+    var values = [username,password,email];
     const emailcheck = [email];
-    if (validflag == 1 && !req.session.logedin){
+    if (!req.session.logedin){
         const client = new Client({
             host: 'localhost',
             user: 'postgres',
@@ -421,10 +420,23 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
             await client.connect();
             const tex = 'SELECT email FROM users WHERE email = $1';
             let response = await client.query(tex,emailcheck);
-            if(response.rows[0] != undefined){
+            let response2 = await client.query('SELECT username FROM users WHERE username = $1',[username]);
+            if(response.rows[0] != undefined || response2.rows[0] != undefined){
                 res.sendFile(path.join(__dirname, "incorrect.html"));
             }
             else{
+                let previd = await client.query('SELECT user_id FROM users ORDER BY user_id DESC');
+                
+                if(previd.rowCount < 1){
+                    previd = 0;
+                }
+                else{
+                    previd = previd.rows[0]['user_id'];
+                }
+                password = salt(password,(previd)+1);
+                password = hash(password);
+                console.log(password.length);
+                values[1] = password;
                 // HASHING & SALTING GOES HERE ------------------
                 await client.query('INSERT INTO users(username,password,email) VALUES($1,$2,$3)',values);
                 let id = await client.query('SELECT user_id FROM users WHERE username = $1',[username]);
@@ -448,25 +460,28 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
     }
 });
 
-function sanatise(text){
-    var santext = text.replaceAll('<',"");
-    santext = santext.replaceAll(">","");
-    santext = santext.replaceAll('"',"");
-    if(santext == text){
-        return true;
-    }
-    else{
-        return false;
-    }
+
+
+function escape(tet) {
+    let lookup = {
+        '&': "&amp;",
+        '"': "&quot;",
+        '\'': "&apos;",
+        '<': "&lt;",
+        '>': "&gt;"
+    };
+    return tet.replace( /[&"'<>]/g, c => lookup[c] );
+};
+
+function hash(text){
+    const shaObj = new jsSHA("SHA-1", "TEXT", { encoding: "UTF8" });
+    shaObj.update(text);
+    return shaObj.getHash("HEX");
 }
 
-function salt(text){
-    const strong = random;
-    //Generate strong random number
-    //concat with text
-    //return text and strong number
-    
-    return [text, strong];
+
+function salt(text, salt){
+    return text + salt;
 }
 
 const create = async function(){
