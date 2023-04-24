@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const pass= "Noobsarebanned123"; //Change this to match your password
+const pass= "user"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
 
 const createDatabase = async () => {
@@ -72,7 +72,7 @@ function isAuthenticated (req, res, next) {
   
 app.get('/', isAuthenticated, function (req, res) {
     // this is only called when there is an authentication user due to isAuthenticated
-    res.sendFile(path.join(__dirname, "index.html"));
+    res.sendFile(path.join(__dirname, "2FA.html"));
 })
 
 // When a get request is recieved the html page is returned
@@ -108,6 +108,44 @@ app.get("/createPost", (req,res) => {
 app.get("/login",(req,res) =>{
     res.sendFile(path.join(__dirname, "login.html"));
 });
+
+// -------------------- QR CODE --------------------
+const speakeasy = require('speakeasy');
+const qrcode    = require('qrcode');
+
+var secret = speakeasy.generateSecret({
+    name: "Blog - Developing Secure Software"
+})
+
+console.log(secret);
+
+qrcode.toDataURL(secret.otpauth_url, function(err, data){
+    console.log(data);
+})
+
+app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(req,res) {
+    
+    console.log("Here!");
+
+    const token = req.body.twoFaPassword;
+    console.log(token);
+
+    var verified = speakeasy.totp.verify({
+        secret: ',0k1fUcuRguC@b@>il%&B0BT%v#&2UFa', // ascii: ''
+        encoding: 'ascii',
+        token: token // Code generated on phone
+    })
+
+    console.log(verified);
+
+    if (verified == true) {
+        res.sendFile(path.join(__dirname, "index.html"));
+    } else {
+        console.log("Failed 2FA!")
+    }
+});
+
+// -------------------- X --------------------
 
 app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res) => {
     const client = new Client({
