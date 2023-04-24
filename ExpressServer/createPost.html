@@ -42,26 +42,26 @@
                 <div class="row">    
                     <div class="col-sm-12">
                         <form action="/uploadPost" method="post">
-                            <label for="fname">Post Title:</label>
-                            <input type="text" id="fname" name="fname" required minlength="6"><br><br>
+                            <label for="pTitle">Post Title:</label>
+                            <input type="text" id="pTitle" name="pTitle" required minlength="6"><br><br>
 
                             <h3> Category </h3>
                             <ul id="categoryList">
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Automotive" required><label>Automotive</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Tech" required><label>Tech</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Health" required><label>Health</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Sports" required><label>Sports</label></li><br>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Travel" required><label>Travel</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Beauty" required><label>Beauty</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Fashion" required><label>Fashion</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Entertainment" required><label>Entertainment</label></li><br>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Productivity" required><label>Productivity</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Pets" required><label>Pets</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Agriculture" required><label>Agriculture</label></li>
-                                <li><input class="checkboxes" name="BoxSelect[]" type="checkbox" value="Other" required><label>Other</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Automotive" required><label>Automotive</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Tech" required><label>Tech</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Health" required><label>Health</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Sports" required><label>Sports</label></li><br>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Travel" required><label>Travel</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Beauty" required><label>Beauty</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Fashion" required><label>Fashion</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Entertainment" required><label>Entertainment</label></li><br>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Productivity" required><label>Productivity</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Pets" required><label>Pets</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Agriculture" required><label>Agriculture</label></li>
+                                <li><input class="checkboxes" name="BoxSelect" type="checkbox" value="Other" required><label>Other</label></li>
                             </ul>
 
-                            <textarea id="postTextArea" rows="4" cols="50" maxlength="500" minlength="20" required> Enter text here... </textarea><br>
+                            <textarea id="postTextArea" name="postTextArea" rows="4" cols="50" maxlength="500" minlength="20" required> Enter text here... </textarea><br>
                             <div id="counter"></div>
                             <input type="submit" value="Create Post">
                         </form>

@@ -28,7 +28,7 @@
             <div class="box">
                 <div class="row">
                     <div class="col-sm-12">
-                        <form id="myForm" action="/submit-data" method="post">
+                        <form id="myForm" action="/register" method="post">
                             <label for="rej_username">Username</label><br>
                             <input type="text" id="rej_username" name="rej_username" required><br><br>
                             <label for="rej_email">Email</label><br>
@@ -37,10 +37,10 @@
                             <input type="text" id="rej_password" name="rej_password" required minlength="8"><br><br>
                             <input type="submit" value="Submit">
                         </form>
-                        <form action="/login" method="post"><br>
+                        <form action="/login" method="get"><br>
                             <p> Already have an account? <input type="submit" value="Sign In" class="formBoldBtn"> </p> 
                         </form>
-                        <p id="incorrectText"> An account with that email already exists </p>
+                        <p id="incorrectText"> An account with that email or username already exists </p>
                     </div>
                 </div>
             </div>
