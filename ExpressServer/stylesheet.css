@@ -103,6 +103,36 @@
   padding-bottom: 2%;
 }
 
+.box2FA {
+  background-color: rgb(199, 199, 199);
+  background-size: 300px;
+  padding-top: 5%;
+  padding-bottom: 5%;
+  display: inline-block;
+  width: 700px;
+  height: 530px;
+  justify-content: center;
+}
+
+#twoFAInfo {
+  padding-top: 3%;
+}
+#twoFAInfo i { 
+  padding-top: 3%;
+  padding-left: 5%;
+  padding-right: 5%;
+} 
+
+#twoFAInfo a { 
+  background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+}
+
 /* ---------------------------------------- Dropdown Button ---------------------------------------- */
 .dropbtn {
   background-color: white;

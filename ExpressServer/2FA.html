@@ -6,8 +6,9 @@
     <title> Developing Secure Software - Login </title>
     <link rel="stylesheet" href="stylesheet.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body style="background-color: rgb(223, 223, 223);">
@@ -26,7 +27,7 @@
         <div class="container">
             <h1> Two-factor Authentication </h1>
             <p> Please scan the QR Code to generate your one-time password! </p>
-            <div class="box">
+            <div class="box2FA">
                 <div class="row">
                     <div class="col-sm-12">
                         <img src="data:image/png;base64,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">
@@ -37,6 +38,11 @@
                     <input type="text" id="twoFaPassword" name="twoFaPassword" maxlength="6" required><br><br>
                     <input id="Button1" type="submit" value="Submit" class="formSubmitBtn">
                 </form>
+                <div id="twoFAInfo">
+                    <h7> Don't have Google Authenticator? </h7><br>
+                    <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&gl=GB"><i class="fa fa-android" style="font-size:36px"></i></a>
+                    <a href="https://apps.apple.com/us/app/google-authenticator/id388497605"><i class="fa fa-apple" style="font-size:36px"></i></a>
+                </div>
                 <div id="failedTwoFa"> </div>
             </div>
         </div>

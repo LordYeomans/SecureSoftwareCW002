@@ -69,14 +69,23 @@ function isAuthenticated (req, res, next) {
     if (req.session.logedin) next()
     else next('route')
   }
-  
+
 app.get('/', isAuthenticated, function (req, res) {
     // this is only called when there is an authentication user due to isAuthenticated
-    res.sendFile(path.join(__dirname, "2FA.html"));
+    //res.sendFile(path.join(__dirname, "2FA.html"));
+
+    console.log(testBool);
+
+    if (testBool == true) {
+        res.sendFile(path.join(__dirname, "2FA.html"));
+    } else {
+        res.sendFile(path.join(__dirname, "index.html"));
+    } 
 })
 
 // When a get request is recieved the html page is returned
 app.get("/", function(req, res){
+    testBool = true;
     res.sendFile(path.join(__dirname, "login.html"));
 });
 
@@ -98,6 +107,7 @@ app.post("/logout", express.urlencoded({extended: false}), function(req,res){
 });
 
 app.get("/register", (req,res) => {
+    testBool = false;
     res.sendFile(path.join(__dirname, "register.html"));
 });
 
@@ -106,6 +116,7 @@ app.get("/createPost", (req,res) => {
 }); 
 
 app.get("/login",(req,res) =>{
+    testBool = true;
     res.sendFile(path.join(__dirname, "login.html"));
 });
 
@@ -278,7 +289,6 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
     }
 });
 //html encode < >
-
 
 app.post("/search", async (req,res) =>{
     let text = req.body.ser_text;
@@ -475,6 +485,9 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
                 password = hash(password);
                 console.log(password.length);
                 values[1] = password;
+
+                testBool = false;
+
                 // HASHING & SALTING GOES HERE ------------------
                 await client.query('INSERT INTO users(username,password,email) VALUES($1,$2,$3)',values);
                 let id = await client.query('SELECT user_id FROM users WHERE username = $1',[username]);
