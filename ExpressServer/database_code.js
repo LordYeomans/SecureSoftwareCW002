@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const pass= "user"; //Change this to match your password
+const pass= "Noobsarebanned123"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
 
 const createDatabase = async () => {
