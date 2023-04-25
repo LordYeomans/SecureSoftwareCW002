@@ -500,7 +500,6 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
                         res.redirect('/');
                     });
                 })
-    
             }
         }catch(error){
             console.error(error);
@@ -510,8 +509,6 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
         //could send redirect header or full html page        
     }
 });
-
-
 
 function escape(tet) {
     let lookup = {

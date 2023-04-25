@@ -34,7 +34,9 @@
                             <label for="rej_email">Email</label><br>
                             <input type="email" id="rej_email" name="rej_email" required><br><br>
                             <label for="rej_password">Password</label><br>
-                            <input type="text" id="rej_password" name="rej_password" required minlength="8"><br><br>
+                            <input type="input" id="rej_password" name="rej_password" required minlength="8" onkeyup="lineColour()"><br>
+                            <hr class="passwordLine">
+                            <p id="passwordStrength"></p>
                             <input type="submit" value="Submit">
                         </form>
                         <form action="/login" method="get"><br>
@@ -46,5 +48,31 @@
             </div>
         </div>
     </div>
+    <script>
+
+        function lineColour() {
+            
+            const line = document.getElementsByClassName("passwordLine")[0];
+            const passwordTxt = document.getElementById("rej_password");
+            const passwordStrengthTxt = document.getElementById("passwordStrength");
+
+            if (passwordTxt.value.length <= 8) {
+                line.style.borderColor = "red";
+                line.style.width = "0%";
+                passwordStrengthTxt.innerHTML = "Password Strength: Weak";
+            } 
+            if (passwordTxt.value.length >= 9) {
+                line.style.borderColor = "orange";
+                line.style.width = "12.5%";
+                passwordStrengthTxt.innerHTML = "Password Strength: Moderate";
+            } 
+            if (passwordTxt.value.length >= 12){
+                line.style.borderColor = "green"
+                line.style.width = "26%";
+                passwordStrengthTxt.innerHTML = "Password Strength: Strong";
+            }
+        }
+        
+    </script>
 </body>
 </html>
