@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const pass= "Noobsarebanned123"; //Change this to match your password
+const pass= "user"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
 
 const createDatabase = async () => {
@@ -79,7 +79,7 @@ app.get('/', isAuthenticated, function (req, res) {
     if (testBool == true) {
         res.sendFile(path.join(__dirname, "2FA.html"));
     } else {
-        res.sendFile(path.join(__dirname, "index.html"));
+        res.sendFile(path.join(__dirname, "2FAregister.html"));
     } 
 })
 
