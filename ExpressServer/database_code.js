@@ -35,7 +35,7 @@ const createTable = async () => {
     })
     try{
         await client.connect();
-        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (50) UNIQUE NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL)');
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (50) UNIQUE NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,secret VARCHAR(50) UNIQUE)');
         await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
     } catch (error){
         console.error(error.stack);
@@ -139,8 +139,26 @@ app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(
     console.log("Here!");
 
     const token = req.body.twoFaPassword;
+    const id = req.session.user;
     console.log(token);
+    var secret = "";
+    //Code to get secret from db
+    const client = new Client({
+        host: 'localhost',
+        user: 'postgres',
+        password: pass,
+        port: 5432,
+        database: databasename
+    })
+    try{
+        await client.connect();
+        secret = await client.query('SELECT secret FROM users WHERE user_id = $1',[id]);
+        secret = secret.rows[0]['secret'];
+    } catch(err){
 
+    } finally{
+
+    }
     var verified = speakeasy.totp.verify({
         secret: ',0k1fUcuRguC@b@>il%&B0BT%v#&2UFa', // ascii: ''
         encoding: 'ascii',
