@@ -1,7 +1,7 @@
 const { Client } = require('pg');
 
 const databasename = "my_database"
-const pass= "user"; //Change this to match your password
+const pass= "Noobsarebanned123"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
 
 const createDatabase = async () => {
@@ -55,8 +55,8 @@ const port = process.env.PORT || 5000; //This will listen on localhost:5000
 // Enables text to be from the html
 app.use(bodyParser.urlencoded({extended: false}));
 
-//const oneDay = 24* 60* 60* 1000;
-const oneDay = 3* 60* 1000;
+const oneDay = 24* 60* 60* 1000;
+//const oneDay = 3* 60* 1000;
 // Secret should be array of random strings to stop session hijacking (Secure cookies should also be used)
 app.use(session({
     secret: "Session1",
@@ -74,10 +74,17 @@ app.get('/', isAuthenticated, function (req, res) {
     // this is only called when there is an authentication user due to isAuthenticated
     //res.sendFile(path.join(__dirname, "2FA.html"));
 
-    console.log(testBool);
+    console.log("Session 2fa: "+req.session.fa);
 
-    if (testBool == true) {
+    if (req.session.fa == true) {
+        res.sendFile(path.join(__dirname, "index.html"));
+    }
+    //check source of request ---------------------------------------------------------------
+    //if src of request is from login send to 2FA.html
+    //else send to 2FAregister.html
+    else if(req.session.log == true){
         res.sendFile(path.join(__dirname, "2FA.html"));
+        req.session.log = undefined;
     } else {
         res.sendFile(path.join(__dirname, "2FAregister.html"));
     } 
@@ -85,7 +92,6 @@ app.get('/', isAuthenticated, function (req, res) {
 
 // When a get request is recieved the html page is returned
 app.get("/", function(req, res){
-    testBool = true;
     res.sendFile(path.join(__dirname, "login.html"));
 });
 
@@ -107,7 +113,6 @@ app.post("/logout", express.urlencoded({extended: false}), function(req,res){
 });
 
 app.get("/register", (req,res) => {
-    testBool = false;
     res.sendFile(path.join(__dirname, "register.html"));
 });
 
@@ -116,7 +121,6 @@ app.get("/createPost", (req,res) => {
 }); 
 
 app.get("/login",(req,res) =>{
-    testBool = true;
     res.sendFile(path.join(__dirname, "login.html"));
 });
 
@@ -131,7 +135,7 @@ var secret = speakeasy.generateSecret({
 console.log(secret);
 
 qrcode.toDataURL(secret.otpauth_url, function(err, data){
-    console.log(data);
+    //console.log(data);
 })
 
 app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(req,res) {
@@ -165,9 +169,10 @@ app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(
         token: token // Code generated on phone
     })
 
-    console.log(verified);
+    //console.log(verified);
 
     if (verified == true) {
+        req.session.fa = true;
         res.sendFile(path.join(__dirname, "index.html"));
     } else {
         console.log("Failed 2FA!")
@@ -239,6 +244,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             //Use result of that to log in (will only return 1 if the username and password exist in a single record)
             if(result.rowCount > 0){
                 req.session.logedin = true;
+                req.session.log = true; //represents where the request to 2FA is coming from
                 req.session.user = id.rows[0]['user_id'];
                 res.redirect("/");
             }
@@ -384,6 +390,7 @@ app.post("/search", async (req,res) =>{
 
         title = escape(result.rows[i]['title']);
         text = escape(result.rows[i]['post_text']);
+        let time =result.rows[i]['timestamp'];
 
         res.write('<div id="postBorder" class="col-sm-5">');
         res.write('<h3>'+title+'</h3>');
