@@ -35,7 +35,7 @@ const createTable = async () => {
     })
     try{
         await client.connect();
-        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (50) UNIQUE NOT NULL,password VARCHAR (50) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,secret VARCHAR(50) UNIQUE)');
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,secret VARCHAR(50) UNIQUE)');
         await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
     } catch (error){
         console.error(error.stack);
@@ -49,6 +49,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const jsSHA = require("jssha");
 var session = require("express-session");
+var crypto = require("crypto");
 
 var app = express();
 const port = process.env.PORT || 5000; //This will listen on localhost:5000
@@ -212,7 +213,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
     }
     else{
         var pas = req.body.log_password;
-        const usr = req.body.log_username;
+        var usr = req.body.log_username;
         const client = new Client({
             host: 'localhost',
             user: 'postgres',
@@ -227,6 +228,8 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             await client.connect();
             //Randomly generate salt
             let randsalt = Math.round(Math.random() * (10000 - 1) + 1);
+            //encrypt username
+            usr = encrypt(usr);
             //Query for user Id 
             const id = await client.query('SELECT user_id FROM users WHERE username = $1',[usr]);
             //If found salt
@@ -239,6 +242,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
                 pas = salt(pas,randsalt.toString());
                 pas = hash(pas);
             }
+            pas = encrypt(pas); // encrypt the password
             let result = await client.query('SELECT 1 FROM users WHERE username = $1 AND password = $2',[usr,pas]);
             //SELECT 1 FROM users WHERE username = $1 AND password = $2
             //Use result of that to log in (will only return 1 if the username and password exist in a single record)
@@ -474,13 +478,12 @@ app.post("/search", async (req,res) =>{
 // For registration
 app.post("/register", express.urlencoded({ extended: false }), async function(req,res) {
     //get the data from the form
-    const username = req.body.rej_username;
-    const email = req.body.rej_email;
+    var username = req.body.rej_username;
+    var email = req.body.rej_email;
     var password = req.body.rej_password;
-
-    
+    username = encrypt(username);
+    email = encrypt(email);
     var values = [username,password,email];
-    const emailcheck = [email];
     if (!req.session.logedin){
         const client = new Client({
             host: 'localhost',
@@ -491,8 +494,9 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
         });
         try{
             await client.connect();
+            
             const tex = 'SELECT email FROM users WHERE email = $1';
-            let response = await client.query(tex,emailcheck);
+            let response = await client.query(tex,[email]);
             let response2 = await client.query('SELECT username FROM users WHERE username = $1',[username]);
             if(response.rows[0] != undefined || response2.rows[0] != undefined){
                 res.sendFile(path.join(__dirname, "incorrect.html"));
@@ -506,14 +510,12 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
                 else{
                     previd = previd.rows[0]['user_id'];
                 }
-                password = salt(password,(previd)+1);
-                password = hash(password);
-                console.log(password.length);
+                password = salt(password,(previd)+1); // salt the password
+                password = hash(password); // hash the password
+                password = encrypt(password); //encrypt the password
+                
                 values[1] = password;
-
-                testBool = false;
-
-                // HASHING & SALTING GOES HERE ------------------
+                
                 await client.query('INSERT INTO users(username,password,email) VALUES($1,$2,$3)',values);
                 let id = await client.query('SELECT user_id FROM users WHERE username = $1',[username]);
                 //await res.send("Account created");
@@ -552,6 +554,21 @@ function hash(text){
     return shaObj.getHash("HEX");
 }
 
+function encrypt(text){
+    var key = crypto.createCipher("aes-128-cbc","tempkey");
+    var str = key.update(text,'utf8','hex');
+    text = str+key.final('hex');
+    return text;
+    
+}
+
+function decrypt(cipher){
+    var key = crypto.createDecipher('aes-128-cbc','tempkey');
+    var str = key.update(cipher,'hex','utf8');
+    str +=key.final('utf8');
+    return str;
+    
+}
 
 function salt(text, salt){
     return text + salt;
