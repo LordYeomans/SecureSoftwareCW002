@@ -63,8 +63,28 @@ app.use(session({
     secret: "Session1",
     saveUninitialized: true,
     resave: false,
-    cookie: {maxAge: oneDay}
+    cookie: {maxAge: oneDay},
+    cookie: {secure: true }
 }));
+
+app.use(session({
+    genid: function(req) {
+      return genuuid() // use UUIDs for session IDs
+    },
+    secret: 'Session1'
+  }))
+
+  var sess = {
+    secret: 'Session1',
+    cookie: {}
+  }
+  
+  if (app.get('env') === 'production') {
+    app.set('trust proxy', 1) // trust first proxy
+    sess.cookie.secure = true // serve secure cookies
+  }
+  
+  app.use(session(sess))
 
 function isAuthenticated (req, res, next) {
     if (req.session.logedin) next()
