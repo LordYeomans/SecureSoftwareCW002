@@ -17,7 +17,7 @@ injection, cross-site scripting, and cross site request forgery.
 - pg
 - speakeasy
 - qrcode
->These can be downloaded once you have node using the command npm install *package name*
+>These can be downloaded once you have node using the command *npm install **package name***
 
 
 **Run Code**
