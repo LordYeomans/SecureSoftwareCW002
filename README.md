@@ -10,13 +10,13 @@ injection, cross-site scripting, and cross site request forgery.
   
 **Dependancies**  
 >This project uses *node.js* and the following node packages:
--express
--jssha
--body-parser
--crypto
--pg
--speakeasy
--qrcode
+- express
+- jssha
+- body-parser
+- crypto
+- pg
+- speakeasy
+- qrcode
 >These can be downloaded once you have node using the command npm install *package name*
 
 
