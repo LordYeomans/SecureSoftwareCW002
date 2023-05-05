@@ -71,20 +71,14 @@ app.use(session({
     genid: function(req) {
       return genuuid() // use UUIDs for session IDs
     },
-    secret: 'Session1'
-  }))
-
-  var sess = {
     secret: 'Session1',
-    cookie: {}
-  }
-  
-  if (app.get('env') === 'production') {
-    app.set('trust proxy', 1) // trust first proxy
-    sess.cookie.secure = true // serve secure cookies
-  }
-  
-  app.use(session(sess))
+    saveUninitialized: true,
+    resave: false,
+    cookie: {maxAge: oneDay},
+    cookie: {secure: true }
+  }))
+  app.set('trust proxy', 1) // trust first proxy
+
 
 function isAuthenticated (req, res, next) {
     if (req.session.logedin) next()
@@ -599,6 +593,14 @@ const create = async function(){
     await createTable();
 }
 create();
-
-app.listen(port);
+var https = require("https");
+var fs = require("fs");
+https.createServer(
+    {
+    key: fs.readFileSync("server.key"),
+    cert: fs.readFileSync("server.cert")
+    },
+    app
+    ).listen(port)
+//app.listen(port);
 console.log("Server started at port :" + port);
