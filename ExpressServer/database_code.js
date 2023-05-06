@@ -4,6 +4,26 @@ const databasename = "my_database"
 const pass= "Noobsarebanned123"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
 
+const testHarnes = async () => {
+    // Should output 2 messages to console with no errors
+    //createDatabase();
+    //createTable();
+
+    //salting
+    var t = "hello"
+    t = salt(t,1);
+    console.log(t); // output should be 1hello
+    //hashing
+    t = hash(t);
+    console.log(t); // output should be 88fdd585121a4ccb3d1540527aee53a77c77abb8
+    //encryption
+    t = encrypt(t);
+    console.log(t); // output should be 3b3747e6e7eb406b4d51f386d7bb0bc986f4eda4055f4eb5cd85ff5b78b04706ae39ea21befc8f025a897d9ffbe3b01b
+    t = "<script>this is a script</script>";
+    t = escape(t);
+    console.log(t); // output should be &lt;script&gt;this is a script&lt;/script&gt;
+}
+
 const createDatabase = async () => {
     const client = new Client({ // Makes client object that we connect to
         host: 'localhost',
@@ -12,10 +32,10 @@ const createDatabase = async () => {
         port: 5432
     });
     try {
-        await client.connect();                            // gets connection
-        let exist = await client.query('SELECT datname FROM pg_database WHERE datname = $1',[databasename]);
+        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));                   // gets connection
+        let exist = await client.query('SELECT 1 FROM pg_database WHERE datname = $1',[databasename]);
         if(exist.rowCount == 0){
-            await client.query('CREATE DATABASE '+databasename);
+            await client.query('CREATE DATABASE '+databasename).then(() => console.log("Database was successfully created")).catch((error) => console.error(error));
         }
         //flush
     } catch (error) {
@@ -34,9 +54,9 @@ const createTable = async () => {
         database: databasename
     })
     try{
-        await client.connect();
-        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,secret VARCHAR(50) UNIQUE)');
-        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');  
+        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,secret VARCHAR(50) UNIQUE)').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
+        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))').then(() => console.log("Post table was successfully created")).catch((error) => console.error(error));  
     } catch (error){
         console.error(error.stack);
     } finally{
@@ -59,6 +79,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 const oneDay = 24* 60* 60* 1000;
 //const oneDay = 3* 60* 1000;
 // Secret should be array of random strings to stop session hijacking (Secure cookies should also be used)
+/*
 app.use(session({
     secret: "Session1",
     saveUninitialized: true,
@@ -66,7 +87,7 @@ app.use(session({
     cookie: {maxAge: oneDay},
     cookie: {secure: true }
 }));
-
+*/
 app.use(session({
     genid: function(req) {
       return genuuid() // use UUIDs for session IDs
@@ -170,7 +191,7 @@ app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(
         database: databasename
     })
     try{
-        await client.connect();
+        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
         secret = await client.query('SELECT secret FROM users WHERE user_id = $1',[id]);
         secret = secret.rows[0]['secret'];
     } catch(err){
@@ -212,7 +233,7 @@ app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res)
 
     let values = [usr,title,cat,post];
     try{
-        await client.connect();
+        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
         await client.query("INSERT INTO posts (user_id,title,category,post_text) VALUES($1,$2,$3,$4)",values);
         res.redirect("/");
     } catch(err){
@@ -239,7 +260,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             //Get current time
             let start = Date.now();
             //Connect to db
-            await client.connect();
+            await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
             //Randomly generate salt
             let randsalt = Math.round(Math.random() * (10000 - 1) + 1);
             //encrypt username
@@ -344,7 +365,7 @@ app.post("/search", async (req,res) =>{
     try{
         text = text.toUpperCase();
         text = "%"+text+"%";
-        await client.connect();
+        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
         const quer = 'SELECT * FROM posts WHERE title LIKE $1';
         let result = await client.query(quer,[text]);
         res.write(`<head>
@@ -507,7 +528,7 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
             database: databasename
         });
         try{
-            await client.connect();
+            await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
             
             const tex = 'SELECT email FROM users WHERE email = $1';
             let response = await client.query(tex,[email]);
@@ -592,7 +613,7 @@ const create = async function(){
     await createDatabase();
     await createTable();
 }
-create();
+//create();
 var https = require("https");
 var fs = require("fs");
 https.createServer(
@@ -603,4 +624,5 @@ https.createServer(
     app
     ).listen(port)
 //app.listen(port);
+testHarnes();
 console.log("Server started at port :" + port);
