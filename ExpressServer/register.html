@@ -11,6 +11,7 @@
 </head>
 <body style="background-color: rgb(223, 223, 223);" onload="lineColour()">
 
+    <script src="generator.js"></script>
     <div class="navBar">
         <div class="container">
             <div class="row">
@@ -31,6 +32,7 @@
                         <form id="myForm" action="/register" method="post">
                             <label for="rej_username">Username</label><br>
                             <input type="text" id="rej_username" name="rej_username" required><br><br>
+                            <input required type="hidden" name="csrf" value="generateString(12);">
                             <label for="rej_email">Email</label><br>
                             <input type="email" id="rej_email" name="rej_email" required><br><br>
                             <label for="rej_password">Password</label><br>
