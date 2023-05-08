@@ -55,7 +55,7 @@ const createTable = async () => {
     })
     try{
         await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
-        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,secret VARCHAR(50) UNIQUE)').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,csrf VARCHAR(50) UNIQUE)').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
         await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))').then(() => console.log("Post table was successfully created")).catch((error) => console.error(error));  
     } catch (error){
         console.error(error.stack);
@@ -97,8 +97,8 @@ app.use(session({
     resave: false,
     cookie: {maxAge: oneDay},
     cookie: {secure: true }
-  }))
-  app.set('trust proxy', 1) // trust first proxy
+}))
+app.set('trust proxy', 1) // trust first proxy
 
 
 function isAuthenticated (req, res, next) {
@@ -190,6 +190,7 @@ app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(
         port: 5432,
         database: databasename
     })
+    /*
     try{
         await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
         secret = await client.query('SELECT secret FROM users WHERE user_id = $1',[id]);
@@ -199,6 +200,7 @@ app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(
     } finally{
 
     }
+    */
     var verified = speakeasy.totp.verify({
         secret: ',0k1fUcuRguC@b@>il%&B0BT%v#&2UFa', // ascii: ''
         encoding: 'ascii',
@@ -550,8 +552,12 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
                 password = encrypt(password); //encrypt the password
                 
                 values[1] = password;
-                
-                await client.query('INSERT INTO users(username,password,email) VALUES($1,$2,$3)',values);
+                let csrf = req.body.csrf;
+                console.log(csrf);
+                //if the csrf is printing correctly then uncomment the command below and comment out the one under that (the one that looks very similar)
+                //values[3] = csrf; <----- uncomment this
+                //await client.query('INSERT INTO users(username,password,email,csrf) VALUES($1,$2,$3,$4),values); <----- uncomment this
+                await client.query('INSERT INTO users(username,password,email) VALUES($1,$2,$3)',values); // <----- comment this out
                 let id = await client.query('SELECT user_id FROM users WHERE username = $1',[username]);
                 //await res.send("Account created");
                 req.session.regenerate(function (err){
@@ -613,7 +619,7 @@ const create = async function(){
     await createDatabase();
     await createTable();
 }
-//create();
+create();
 var https = require("https");
 var fs = require("fs");
 https.createServer(
@@ -624,5 +630,5 @@ https.createServer(
     app
     ).listen(port)
 //app.listen(port);
-testHarnes();
+//testHarnes();
 console.log("Server started at port :" + port);
