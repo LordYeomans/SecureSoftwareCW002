@@ -55,11 +55,7 @@ const createTable = async () => {
     })
     try{
         await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
-<<<<<<< Updated upstream
-        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,csrf VARCHAR(50))').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
-=======
         await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,csrf VARCHAR(50) DEFAULT "50FaWgdOhitaR1k3ODOR8d6u9M9wyna8")').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
->>>>>>> Stashed changes
         await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))').then(() => console.log("Post table was successfully created")).catch((error) => console.error(error));  
     } catch (error){
         console.error(error.stack);
