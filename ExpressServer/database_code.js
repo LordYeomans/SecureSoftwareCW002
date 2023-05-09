@@ -55,7 +55,11 @@ const createTable = async () => {
     })
     try{
         await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
+<<<<<<< Updated upstream
         await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,csrf VARCHAR(50))').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
+=======
+        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,csrf VARCHAR(50) DEFAULT "50FaWgdOhitaR1k3ODOR8d6u9M9wyna8")').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
+>>>>>>> Stashed changes
         await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))').then(() => console.log("Post table was successfully created")).catch((error) => console.error(error));  
     } catch (error){
         console.error(error.stack);
@@ -88,9 +92,19 @@ app.use(session({
     cookie: {secure: true }
 }));
 */
+
+function create_UUID(){ //funcion create uuid
+    var dt = new Date().getTime();
+    var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = (dt + Math.random()*16)%16 | 0;
+        dt = Math.floor(dt/16);
+        return (c=='x' ? r :(r&0x3|0x8)).toString(16);
+    });
+    return uuid;
+}
 app.use(session({
     genid: function(req) {
-      return genuuid() // use UUIDs for session IDs
+      return create_UUID() // use UUIDs for session IDs
     },
     secret: 'Session1',
     saveUninitialized: true,
@@ -100,6 +114,46 @@ app.use(session({
 }))
 app.set('trust proxy', 1) // trust first proxy
 
+const validation = async (req, res) => { //validation for CSRF token of username
+
+    const { username, csrf } = req.body;
+    const client = new Client({
+        host: 'localhost',
+        user: 'postgres',
+        password: pass,
+        port: 5432,
+        database: databasename
+    });
+  
+    try {
+      await client.connect(); //connect node.js to postgre
+
+      const result = await client.query('SELECT * FROM table WHERE username = $1 AND csrf = $2', [username, csrf]);
+    if (result.rows.length > 0) {//execute sql queries
+        console.log('Success');
+        return true;
+      } else {
+        console.log('No success.');
+        return false;
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      await client.end();
+    }
+  };
+
+  app.post('/validate', async (req, res) => {
+    const username = req.body.username;
+    const csrf = req.body.csrf;
+    const CSRFiscorrect = await validation(username, csrf);
+  
+    if (CSRFiscorrect) {
+      res.send('Success');
+    } else {
+      res.send('Not success');
+    }
+  });
 
 function isAuthenticated (req, res, next) {
     if (req.session.logedin) next()
