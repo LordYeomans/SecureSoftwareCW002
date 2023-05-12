@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-
+const cipherkey = 1;
 const databasename = "my_database"
 const pass= "Noobsarebanned123"; //Change this to match your password
 //when making posts check for html tags so they cannot inject javascript
@@ -32,10 +32,10 @@ const createDatabase = async () => {
         port: 5432
     });
     try {
-        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));                   // gets connection
+        await client.connect();//.then(() => console.log("Client connected")).catch((error) => console.error(error));                   // gets connection
         let exist = await client.query('SELECT 1 FROM pg_database WHERE datname = $1',[databasename]);
         if(exist.rowCount == 0){
-            await client.query('CREATE DATABASE '+databasename).then(() => console.log("Database was successfully created")).catch((error) => console.error(error));
+            await client.query('CREATE DATABASE '+databasename);//.then(() => console.log("Database was successfully created")).catch((error) => console.error(error));
         }
         //flush
     } catch (error) {
@@ -54,9 +54,9 @@ const createTable = async () => {
         database: databasename
     })
     try{
-        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
-        await client.query('CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL,csrf VARCHAR(50) DEFAULT "50FaWgdOhitaR1k3ODOR8d6u9M9wyna8")').then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
-        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))').then(() => console.log("Post table was successfully created")).catch((error) => console.error(error));  
+        await client.connect();//.then(() => console.log("Client connected")).catch((error) => console.error(error));
+        await client.query("CREATE TABLE IF NOT EXISTS users ( user_id serial PRIMARY KEY,username VARCHAR (97) UNIQUE NOT NULL,password VARCHAR (97) NOT NULL,email VARCHAR (255) UNIQUE NOT NULL, csrf VARCHAR(50) DEFAULT '50FaWgdOhitaR1k3ODOR8d6u9M9wyna8')");//.then(() => console.log("User table was successfully created")).catch((error) => console.error(error));
+        await client.query('CREATE TABLE IF NOT EXISTS posts ( post_id serial PRIMARY KEY,user_id int NOT NULL,category VARCHAR (30),title VARCHAR (40),post_text VARCHAR (512) NOT NULL,timestamp DATE NOT NULL DEFAULT CURRENT_DATE,FOREIGN KEY (user_id) REFERENCES users (user_id))');//.then(() => console.log("Post table was successfully created")).catch((error) => console.error(error));  
     } catch (error){
         console.error(error.stack);
     } finally{
@@ -126,10 +126,10 @@ const validation = async (req, res) => { //validation for CSRF token of username
 
       const result = await client.query('SELECT * FROM table WHERE username = $1 AND csrf = $2', [username, csrf]);
     if (result.rows.length > 0) {//execute sql queries
-        console.log('Success');
+        //console.log('Success');
         return true;
       } else {
-        console.log('No success.');
+        //console.log('No success.');
         return false;
       }
     } catch (err) {
@@ -160,7 +160,7 @@ app.get('/', isAuthenticated, function (req, res) {
     // this is only called when there is an authentication user due to isAuthenticated
     //res.sendFile(path.join(__dirname, "2FA.html"));
 
-    console.log("Session 2fa: "+req.session.fa);
+    //console.log("Session 2fa: "+req.session.fa);
 
     if (req.session.fa == true) {
         res.sendFile(path.join(__dirname, "index.html"));
@@ -183,7 +183,7 @@ app.get("/", function(req, res){
 
 // Imports the Style Sheet
 app.get('/stylesheet.css', (request, responseC) => {
-  responseC.sendFile(path.join(__dirname, "stylesheet.css"))
+  responseC.sendFile(path.join(__dirname, "stylesheet.css"));
 });
 
 app.post("/logout", express.urlencoded({extended: false}), function(req,res){
@@ -226,11 +226,11 @@ qrcode.toDataURL(secret.otpauth_url, function(err, data){
 
 app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(req,res) {
     
-    console.log("Here!");
+    //console.log("Here!");
 
     const token = req.body.twoFaPassword;
     const id = req.session.user;
-    console.log(token);
+    //console.log(token);
     var secret = "";
     //Code to get secret from db
     const client = new Client({
@@ -255,7 +255,7 @@ app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(
         secret: ',0k1fUcuRguC@b@>il%&B0BT%v#&2UFa', // ascii: ''
         encoding: 'ascii',
         token: token // Code generated on phone
-    })
+    });
 
     //console.log(verified);
 
@@ -263,7 +263,7 @@ app.post("/twoFaLogin", express.urlencoded({ extended: false }), async function(
         req.session.fa = true;
         res.sendFile(path.join(__dirname, "index.html"));
     } else {
-        console.log("Failed 2FA!")
+        console.log("Failed 2FA!");
     }
 });
 
@@ -285,7 +285,7 @@ app.post("/uploadPost",express.urlencoded({ extended: false }), async (req, res)
 
     let values = [usr,title,cat,post];
     try{
-        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
+        await client.connect(); //.then(() => console.log("Client connected")).catch((error) => console.error(error));
         await client.query("INSERT INTO posts (user_id,title,category,post_text) VALUES($1,$2,$3,$4)",values);
         res.redirect("/");
     } catch(err){
@@ -312,7 +312,7 @@ app.post("/login", express.urlencoded({ extended: false }), async (req, res) => 
             //Get current time
             let start = Date.now();
             //Connect to db
-            await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
+            await client.connect();//.then(() => console.log("Client connected")).catch((error) => console.error(error));
             //Randomly generate salt
             let randsalt = Math.round(Math.random() * (10000 - 1) + 1);
             //encrypt username
@@ -417,7 +417,7 @@ app.post("/search", async (req,res) =>{
     try{
         text = text.toUpperCase();
         text = "%"+text+"%";
-        await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
+        await client.connect();//.then(() => console.log("Client connected")).catch((error) => console.error(error));
         const quer = 'SELECT * FROM posts WHERE title LIKE $1';
         let result = await client.query(quer,[text]);
         res.write(`<head>
@@ -580,7 +580,7 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
             database: databasename
         });
         try{
-            await client.connect().then(() => console.log("Client connected")).catch((error) => console.error(error));
+            await client.connect();//.then(() => console.log("Client connected")).catch((error) => console.error(error));
             
             const tex = 'SELECT email FROM users WHERE email = $1';
             let response = await client.query(tex,[email]);
@@ -603,7 +603,7 @@ app.post("/register", express.urlencoded({ extended: false }), async function(re
                 
                 values[1] = password;
                 let csrf = req.body.csrf;
-                console.log(csrf);
+                //console.log(csrf);
                 //if the csrf is printing correctly then uncomment the command below and comment out the one under that (the one that looks very similar)
                 //values[3] = csrf; <----- uncomment this
                 //await client.query('INSERT INTO users(username,password,email,csrf) VALUES($1,$2,$3,$4),values); <----- uncomment this
