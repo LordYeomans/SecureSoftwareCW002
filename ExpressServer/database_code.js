@@ -110,7 +110,7 @@ app.use(session({
 }))
 app.set('trust proxy', 1) // trust first proxy
 
-const validation = document.getElementById("Validation") = async (req, res) => { //validation for CSRF token of username
+const validation = async (req, res) => { //validation for CSRF token of username
 
     const { username, csrf } = req.body;
     const client = new Client({
