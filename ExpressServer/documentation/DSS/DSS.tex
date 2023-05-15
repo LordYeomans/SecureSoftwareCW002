@@ -1,10 +1,13 @@
 \documentclass{cmpstyle}
-\title{Report}
+\title{UG06 Group Report}
 \author{UG06}
 \usepackage{graphics}
 \usepackage{hyperref}
 \begin{document}
-	
+\section{Group members}
+Andrew Sturdy - 100318044\newline
+Thomas\newline
+Tan
 \section{Privacy and ethics}
 
 \section{Mitigations}
@@ -23,6 +26,14 @@ Account Enumeration is when a user iterates through a dictionary of possible use
 Cross-site Scripting is when code is injected into a website to then be executed later, this typically happens in the form of html and JavaScript code that gets issued to a text form to run when its displayed later. The way we have mitigated this is through html encoding, all of the html characters ($<$,$>$,",\,\&) needed to write code have special characters that represent them so websites can display them safely, we use this when displaying posts as its the only time code could be injected to run later. Before the posts are displayed on the screen they all go through a function that converts html characters to their display counterparts so $<$ becomes \&lt while being ran but will display as $<$. This should have little to no affect on usability as the users wont see the converted characters and the process is very fast so it should not be much slower than if we didn't do it.
 \subsection{Cross-site Request Forgery}
 \subsection{Session Hijacking}
+\subsection{Hashing, Salting and Encryption}
+The passwords of each user is salted with their user id allowing their passwords to be distinct when hashed even if they were originally the same password. The reason the user id was chosen is because the hashes needed to repeatable as the user id is something unique to the user that is accessible to the server.
+
+Hashing was used on user's passwords before they were entered into the database, we used SHA-128 as our hashing algorithm, which is the 128 bit version of SHA-1. This hashing algorithm was implemented using a pre-built library called jssha which adds functions to hash using most versions of SHA. We chose SHA-128 because it produces strong but small hashes. As this web blog should not contain a lot of personal information there is no need for very strong security.
+
+The encryption we used was AES-128-cbc which uses a 128 bit key size and performs 10 rounds of encryption. We use this algorithm in cipher block chain mode (cbc) which allows the output of the encryption to be of fixed sizes as cbc causes the data to be padded to the block size. All user data that enters the database is encrypted but the post data is not. Posts are not encrypted as they should contain no data about the user and encrypting data that does not need to be would slow down the flow of the website as all posts would need to be decrypted to be displayed.
+
+ 
 \section{Authentication methods}	
 	
 \section{Testing}
