@@ -65,6 +65,7 @@
                             <div id="counter"></div>
                             <input type="submit" value="Create Post">
                             <input required type="hidden" name="csrf" value="50FaWgdOhitaR1k3ODOR8d6u9M9wyna8">
+                            <div id="Validation"></div>
                         </form>
                     </div>
                 </div>
@@ -135,6 +136,48 @@
                 counterEle.style.fontWeight = "normal";
             }
         });
+
+         
+        const validation = document.getElementById('Validation') = async (req, res) => { //validation for CSRF token of username
+
+const { username, csrf } = req.body;
+const client = new Client({
+    host: 'localhost',
+    user: 'postgres',
+    password: pass,
+    port: 5432,
+    database: databasename
+});
+
+try {
+  await client.connect(); //connect node.js to postgre
+
+  const result = await client.query('SELECT * FROM table WHERE username = $1 AND csrf = $2', [username, csrf]);
+if (result.rows.length > 0) {//execute sql queries
+    //console.log('Success');
+    return true;
+  } else {
+    //console.log('No success.');
+    return false;
+  }
+} catch (err) {
+  console.error(err);
+} finally {
+  await client.end();
+}
+};
+
+app.post('/validate', async (req, res) => {
+const username = req.body.username;
+const csrf = req.body.csrf;
+const CSRFiscorrect = await validation(username, csrf);
+
+if (CSRFiscorrect) {
+  res.send('Success');
+} else {
+  res.send('Not success');
+}
+});
 
     </script>
 </body>
